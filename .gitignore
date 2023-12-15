@@ -156,4 +156,9 @@ hs_err_pid*
 # Ignore all local history of files
 .ionide
 
+### Metals ###
+.metals/
+.bloop/
+project/**/metals.sbt
+
 # End of https://www.toptal.com/developers/gitignore/api/sbt,visualstudiocode,scala,intellij
