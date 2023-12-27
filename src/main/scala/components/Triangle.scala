@@ -1,0 +1,1 @@
+final case class Triangle(vertices: Array[Vertice])
