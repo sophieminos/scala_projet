@@ -268,16 +268,11 @@ val triTable: Array[Array[Int]] = Array(
   Array(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
 )
 
-/*
+
 val edgePairs: Array[(Int, Int)] = Array(
   (0, 1), (1, 2), (2, 3), (3, 0),
   (4, 5), (5, 6), (6, 7), (7, 4),
   (0, 4), (1, 5), (2, 6), (3, 7)
-)*/
-val edgePairs: Array[(Int, Int)] = Array(
-  (0, 1), (1, 3), (2, 3), (2, 0),
-  (4, 5), (5, 7), (6, 7), (6, 4),
-  (0, 4), (1, 5), (3, 7), (6, 2)
 )
 
 object MarchingCubes {
@@ -376,7 +371,7 @@ object FileStream extends ZIOAppDefault {
             source <- ZIO.succeed(CSVReader.open(url.getFile()))
             stream <- ZStream
                 .fromIterator[Seq[String]](source.iterator)
-                .take(30000*8)
+                .take(64000*8)
                 .map[Option[DensityPoint]](line =>
                     line match
                         case line =>
