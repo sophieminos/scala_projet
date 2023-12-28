@@ -284,9 +284,21 @@ object MarchingCubes {
     cube.vertices.zipWithIndex.foldLeft(0)((config, vi) => config | (vertexState(vi._1) << vi._2))
 
   def interpolateVertex(v1: DensityPoint, v2: DensityPoint): Vertice = {
-    val x = (v1.x + v2.x)/2.0f
-    val y = (v1.y + v2.y)/2.0f
-    val z = (v1.z + v2.z)/2.0f
+    val valp1 = v1.density
+    val valp2 = v2.density 
+
+    if (Math.abs( - valp1) < 0.00001)
+        return Vertice(v1.x, v1.y, v1.z)
+    if (Math.abs(- valp2) < 0.00001)
+        return Vertice(v2.x, v2.y, v2.z)
+    if (Math.abs(valp1 - valp2) < 0.00001)
+        return Vertice(v1.x, v1.y, v1.z)
+
+    val mu = (- valp1) / (valp2 - valp1)
+    val x = v1.x + mu * (v2.x - v1.x)
+    val y = v1.y + mu * (v2.y - v1.y)
+    val z = v1.z + mu * (v2.z - v1.z)
+
     Vertice(x, y, z)
   }
 
