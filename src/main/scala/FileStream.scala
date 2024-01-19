@@ -4,6 +4,7 @@ import com.github.tototoshi.csv._
 import scala.collection.mutable.ArrayBuffer
 import components.* 
 import helpers.*
+import scala.compiletime.ops.string
 
     object FileStream extends ZIOAppDefault {
         val triangles = ArrayBuffer[Triangle]()
@@ -14,19 +15,24 @@ import helpers.*
             triangles ++= newtriangles
         }
 
-        def postStreamOperations(): Unit = {
+        def postStreamOperations(outputFile: String): Unit = {
             println(s"Number of triangles: ${triangles.size}")
-            ObjFileGenerator.writeTrianglesToObj(triangles, "output.obj")
+            ObjFileGenerator.writeTrianglesToObj(triangles, outputFile)
+            println(s"Output file complete!")
         }
 
         override val run: ZIO[Any & ZIOAppArgs & Scope, Throwable, Unit] = {
 
             for {
                 _    <- Console.print("Please select the name of your file in the 'resources' folder: ")
-                resourcePath <- Console.readLine
+                resourcePath    <- Console.readLine
+                _    <- Console.print("Enter the desired name for the output file: ")
+                outputFile      <- Console.readLine
 
-                url <- ZIO.succeed(getClass.getClassLoader.getResource(resourcePath))
-                source <- ZIO.succeed(CSVReader.open(url.getFile()))
+                url <- ZIO.fromEither(Option(getClass.getClassLoader.getResource(resourcePath + ".csv"))
+                    .toRight(new RuntimeException(s"File not found: $resourcePath.csv")))
+                source <- ZIO.fromEither(Option(CSVReader.open(url.getFile()))
+                    .toRight(new RuntimeException(s"Error opening CSVReader for file: ${url.getFile}")))
                 stream <- ZStream
                     .fromIterator[Seq[String]](source.iterator)
                     .map[Option[DensityPoint]](line =>
@@ -43,7 +49,7 @@ import helpers.*
                     .map(calculate)
                     .runDrain
                 _ <- ZIO.succeed(source.close())
-                _ <- ZIO.succeed(postStreamOperations())
+                _ <- ZIO.succeed(postStreamOperations(outputFile + ".obj"))
             } yield ()
         }
     }
